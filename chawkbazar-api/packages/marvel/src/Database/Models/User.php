@@ -23,13 +23,16 @@ class User extends Authenticatable
 
     protected $guard_name = 'api';
 
+    protected $table = 'user';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'is_active', 'shop_id'
+        //'name', 'email', 'password', 'is_active', 'shop_id'
+        'trader_name', 'email', 'password'
     ];
 
     /**
@@ -38,16 +41,18 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        //'password', 'remember_token',
+        'password',
     ];
 
     protected static function boot()
     {
         parent::boot();
         // Order by updated_at desc
-        static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('updated_at', 'desc');
-        });
+        
+        // static::addGlobalScope('order', function (Builder $builder) {
+        //     $builder->orderBy('updated_at', 'desc');
+        // });
     }
 
     /**
@@ -56,7 +61,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        //'email_verified_at' => 'datetime',
     ];
 
 

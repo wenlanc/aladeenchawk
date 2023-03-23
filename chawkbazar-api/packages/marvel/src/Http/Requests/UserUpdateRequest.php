@@ -28,7 +28,7 @@ class UserUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'    => ['string', 'max:255'],
+            'trader_name'    => ['string', 'max:255'],
             'email'   => ['email', 'unique:users'],
             'shop_id' => ['nullable', 'exists:Marvel\Database\Models\Shop,id'],
             'profile' => ['array'],
@@ -45,8 +45,8 @@ class UserUpdateRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.string'        => 'Name is not a valid string',
-            'name.max:255'       => 'Name can not be more than 255 character',
+            'trader_name.string'        => 'Name is not a valid string',
+            'trader_name.max:255'       => 'Name can not be more than 255 character',
             'email.email'        => 'email is not a valid email address',
             'email.unique:users' => 'email must be unique',
             'address.array'      => 'address is not a valid json',

@@ -53,10 +53,10 @@ class AnalyticsController extends CoreController
                 $totalShops = Shop::where('owner_id', '=', $user->id)->count();
             }
             $customerPermission = ModelsPermission::where('name', Permission::CUSTOMER)->first();
-            $newCustomers = $customerPermission->users()->whereDate('created_at', '>', Carbon::now()->subDays(30))->count();
+            $newCustomers = $customerPermission->users()->whereDate('created_date', '>', Carbon::now()->subDays(30))->count();
             $totalYearSaleByMonthQuery =
                 DB::table('orders')->selectRaw(
-                    "sum(paid_total) as total, DATE_FORMAT(created_at,'%M') as month"
+                    "sum(paid_total) as total, to_char(created_at,'%M') as month"
                 )->whereYear('created_at', date('Y'));
             if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN)) {
                 $totalYearSaleByMonth = $totalYearSaleByMonthQuery->where('parent_id', null)->groupBy('month')->get();

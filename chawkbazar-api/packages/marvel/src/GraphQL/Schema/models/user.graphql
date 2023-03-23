@@ -1,7 +1,7 @@
 extend type Query {
     users(
         text: String @where(operator: "like", key: "name")
-        orderBy: _ @orderBy(columns: ["updated_at", "created_at", "name"])
+        orderBy: _ @orderBy(columns: ["updated_date", "created_date", "trader_name"])
     ): [User!]! @paginate(defaultCount: 10) @can(ability: "super_admin")
     user(id: ID @eq): User @find @can(ability: "super_admin")
     me: User @field(resolver: "UserQuery@me")
@@ -9,16 +9,15 @@ extend type Query {
 
 type User {
     id: ID
-    name: String
+    trader_name: String
     email: String
     shop_id: ID
-    created_at: DateTime
-    updated_at: DateTime
+    created_date: DateTime
+    updated_date: DateTime
     profile: Profile @hasOne
     shops: [Shop] @hasMany
     managed_shop: Shop @belongsTo
-    is_active: Boolean
-    is_active: Boolean
+    status: String
     address: [Address] @hasMany
     orders: [Order] @hasMany @lazyLoad(relations: ["products", "status"])
 }
@@ -65,7 +64,7 @@ input RegisterInput {
             messages: { unique: "Sorry! this email has been already taken." }
         )
     password: String!
-    name: String!
+    trader_name: String!
     permission: Permission
 }
 

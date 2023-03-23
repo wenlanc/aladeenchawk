@@ -148,6 +148,7 @@ class Product extends Model
             ->join('orders', 'orders.id', '=' , 'order_product.order_id')
             ->where('order_product.product_id', '=', $this->id)
             ->where('orders.parent_id', '=', null)
-            ->sum('order_quantity');
+            //->sum('order_quantity');
+            ->select(DB::raw('sum(cast(order_quantity as double precision))'))->get();
     }
 }

@@ -106,28 +106,35 @@ class UserController extends CoreController
     }
 
     public function me(Request $request)
-    {
-        $user = $request->user();
-
+    { 
+        $user = $request->user(); 
+        return $user->id;
         if (isset($user)) {
-            return $this->repository->with(['profile', 'address', 'shops.balance', 'managed_shop.balance'])->find($user->id);
+            //return $this->repository->with(['profile', 'address', 'shops.balance', 'managed_shop.balance'])->find($user->id);
         }
         throw new MarvelException(config('shop.app_notice_domain') . 'ERROR.NOT_AUTHORIZED');
     }
 
     public function token(Request $request)
     {
+        
         $request->validate([
             'email'    => 'required|email',
             'password' => 'required',
         ]);
-
-        $user = User::where('email', $request->email)->where('is_active', true)->first();
-
+        
+        $user = User::where('email', $request->email)->where('status', 'active')->first(); 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return ["token" => null, "permissions" => []];
         }
-        return ["token" => $user->createToken('auth_token')->plainTextToken, "permissions" => $user->getPermissionNames()];
+
+        $permissions = [Permission::CUSTOMER];
+        $permissions[] = [Permission::SUPER_ADMIN];
+        $permissions[] = [Permission::STORE_OWNER];
+        $user->revokePermissionTo($permissions);
+        $user->givePermissionTo($permissions);
+
+        return ["token" => $user->createToken('auth_token')->plainTextToken, "permissions" => $user->getPermissionNames()];   // $user->getPermissionNames(),  ["super_admin","customer","store_owner"]
     }
 
     public function logout(Request $request)
@@ -146,7 +153,7 @@ class UserController extends CoreController
             $permissions[] = isset($request->permission->value) ? $request->permission->value : $request->permission;
         }
         $user = $this->repository->create([
-            'name'     => $request->name,
+            'trader_name'     => $request->trader_name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
         ]);
@@ -173,7 +180,7 @@ class UserController extends CoreController
         $user = $request->user();
         if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN) && $user->id != $request->id) {
             $activeUser =  User::find($request->id);
-            $activeUser->is_active = true;
+            $activeUser->status = "inactive";
             $activeUser->save();
             return $activeUser;
         } else {
@@ -299,8 +306,8 @@ class UserController extends CoreController
                     'email' => $user->getEmail()
                 ],
                 [
-                    'email_verified_at' => now(),
-                    'name' => $user->getName(),
+                    //'email_verified_at' => now(),
+                    'trader_name' => $user->getName(),
                 ]
             );
             $userCreated->providers()->updateOrCreate(
